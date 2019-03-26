@@ -28,13 +28,11 @@ public class DevicesAdapter extends ArrayAdapter<BluetoothDevice> {
             listItem = LayoutInflater.from(getContext()).inflate(R.layout.element_device, parent, false);
 
         TextView txtName = listItem.findViewById(R.id.device_name);
-        TextView txtUUID = listItem.findViewById(R.id.device_uuid);
 
         BluetoothDevice device = getItem(position);
 
         if (device != null) {
             txtName.setText(device.getName());
-//            txtUUID.setText(device.getUuids()[0].toString());
         }
 
         return listItem;

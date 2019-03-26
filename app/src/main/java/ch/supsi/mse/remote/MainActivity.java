@@ -13,7 +13,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.ArraySet;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,7 +20,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,13 +54,15 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBluetoothIntent, ENABLE_BLUETOOTH_REQ);
         } else initBluetoothUI();
 
+
+
         bluetoothReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    if (device.getName() != null && !device.getName().equals("")) {
+                    if (device.getName() != null && !device.getName().equals("") && !devices.contains(device)) {
                         devices.add(device);
                         devicesAdapter.notifyDataSetChanged();
                     }
@@ -74,15 +74,12 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(bluetoothReceiver, filter);
 
-        devicesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BluetoothDevice device = devices.get(position);
+        devicesList.setOnItemClickListener((parent, view, position, id) -> {
+            BluetoothDevice device = devices.get(position);
 
-                Intent intent = new Intent(getBaseContext(), Remote.class);
-                intent.putExtra("device", device);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(getBaseContext(), RemoteActivity.class);
+            intent.putExtra("device", device);
+            startActivity(intent);
         });
 
     }
@@ -139,7 +136,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void onActivityResults(int requestCode, int resultCode, Intent data) {
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ENABLE_BLUETOOTH_REQ) {
             if (resultCode == RESULT_OK) {
                 initBluetoothUI();
