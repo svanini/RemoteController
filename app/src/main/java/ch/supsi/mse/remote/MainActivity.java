@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    // mi assicuro che il dispositivo abbia un nome (per facilità)
+                    // e che non sia già conosciuto
                     if (device.getName() != null && !device.getName().equals("") && !devices.contains(device)) {
                         devices.add(device);
                         devicesAdapter.notifyDataSetChanged();
@@ -75,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(bluetoothReceiver, filter);
 
         devicesList.setOnItemClickListener((parent, view, position, id) -> {
+
+            // se sta facendo ancora la discovery lo fermo, per risparmiare batteria
+            if(mBluetoothAdapter.isDiscovering())
+                mBluetoothAdapter.cancelDiscovery();
+
             BluetoothDevice device = devices.get(position);
 
             Intent intent = new Intent(getBaseContext(), RemoteActivity.class);
@@ -88,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(bluetoothReceiver);
+        // se sta facendo ancora la discovery lo fermo, per risparmiare batteria
+        if(mBluetoothAdapter.isDiscovering())
+            mBluetoothAdapter.cancelDiscovery();
     }
 
     private void initBluetoothUI() {

@@ -66,7 +66,7 @@ public class RemoteActivity extends AppCompatActivity {
     }
 
     private void onConnected() {
-        //todo abilita i bottoni
+        // abilito i comandi quando sono connesso
         status.setText("Connected");
         left.setEnabled(true);
         right.setEnabled(true);
@@ -116,7 +116,6 @@ public class RemoteActivity extends AppCompatActivity {
         try {
             socket.close();
         } catch (IOException e) {
-            status.setText("Connection failed");
             e.printStackTrace();
         }
     }
