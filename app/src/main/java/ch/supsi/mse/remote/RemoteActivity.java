@@ -66,7 +66,7 @@ public class RemoteActivity extends AppCompatActivity {
     }
 
     private void onConnected() {
-        // abilito i comandi quando sono connesso
+        // enable buttons when connected
         status.setText("Connected");
         left.setEnabled(true);
         right.setEnabled(true);

@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         devicesList.setAdapter(devicesAdapter);
 
         if (mBluetoothAdapter == null) {
-            // non supporta bluetooth
+            // Bluetooth not supported
             return;
         }
 
@@ -62,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
                 String action = intent.getAction();
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    // mi assicuro che il dispositivo abbia un nome (per facilità)
-                    // e che non sia già conosciuto
+                    Log.d("Device", "Found device: " + device.getName());
+                    // check that device has a name and that it's not already contained in device list
                     if (device.getName() != null && !device.getName().equals("") && !devices.contains(device)) {
                         devices.add(device);
                         devicesAdapter.notifyDataSetChanged();
@@ -72,13 +72,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // dichiara intent filter per scoltare quando un nuovo dispositivo è trovato
+        // register receiver that listens for discovered devices
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(bluetoothReceiver, filter);
 
         devicesList.setOnItemClickListener((parent, view, position, id) -> {
 
-            // se sta facendo ancora la discovery lo fermo, per risparmiare batteria
+            // if discovery is still active stop it to save battery power
             if(mBluetoothAdapter.isDiscovering())
                 mBluetoothAdapter.cancelDiscovery();
 
@@ -95,22 +95,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(bluetoothReceiver);
-        // se sta facendo ancora la discovery lo fermo, per risparmiare batteria
+        // if discovery is still active stop it to save battery power
         if(mBluetoothAdapter.isDiscovering())
             mBluetoothAdapter.cancelDiscovery();
     }
 
     private void initBluetoothUI() {
-        // dispositivi già accoppiati
+        // paired devices
         devices.addAll(mBluetoothAdapter.getBondedDevices());
         devicesAdapter.notifyDataSetChanged();
 
 
-        //prima della discovery mi assicuro di averne i permessi
+        //manage access_location dangerous permit
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            // devo chiedere i permessi all'utente
+            // ask for permit
 
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION)) {
@@ -119,11 +119,11 @@ public class MainActivity extends AppCompatActivity {
                         PRMISSION_LOCATION_REQUEST);
             }
         } else {
-            // in questo caso ho i permessi
+            // in this case, user already has granted access_location permit
             if (!mBluetoothAdapter.startDiscovery()) {
-                // discovery andata in errore
                 Log.e("Discovery", "failed");
-            }
+            } else
+                Log.i("Discovery", "Started discovery");
         }
 
 
